@@ -44,8 +44,8 @@ backend-venv: ## Create Python virtualenv at .venv
 	python3 -m venv $(VENV)
 	$(PIP) install --upgrade pip
 
-backend-install: backend-venv ## Install backend Python dependencies
-	$(PIP) install -r $(BACKEND_DIR)/requirements.txt
+backend-install: backend-venv ## Install backend Python dependencies (local)
+	$(PIP) install -r $(BACKEND_DIR)/requirements/local.txt
 
 backend-env: ## Copy backend/.env.example -> backend/.env if missing
 	@if [ ! -f $(BACKEND_DIR)/.env ]; then \

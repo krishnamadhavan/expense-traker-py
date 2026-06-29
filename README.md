@@ -18,7 +18,7 @@ Built step by step, API first.
 cd backend
 python3 -m venv ../.venv   # or reuse repo-root .venv
 source ../.venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/local.txt
 cp .env.example .env       # set DJANGO_SECRET_KEY at minimum
 python manage.py migrate
 python manage.py runserver

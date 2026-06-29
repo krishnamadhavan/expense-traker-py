@@ -10,8 +10,8 @@ WORKDIR /app
 
 RUN addgroup --system app && adduser --system --ingroup app app
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements/ requirements/
+RUN pip install --upgrade pip && pip install -r requirements/production.txt
 
 COPY --chown=app:app . .
 

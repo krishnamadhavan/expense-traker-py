@@ -1,0 +1,4 @@
+# Production runtime (Docker, Gunicorn, deploy checks)
+-r base.txt
+gunicorn==23.0.0
+packaging==25.0
