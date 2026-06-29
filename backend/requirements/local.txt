@@ -1,0 +1,3 @@
+# Local development (includes production stack for parity)
+-r production.txt
+# Add dev-only tools below (e.g. pytest, ruff) as needed
