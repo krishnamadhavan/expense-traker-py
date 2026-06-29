@@ -4,7 +4,7 @@ API-first web application for tracking personal expenses.
 
 ## Stack
 
-- **Backend:** Python, Django, Django REST Framework (`backend/`)
+- **Backend:** Python, Django, Django REST Framework, PostgreSQL (`backend/`)
 - **Frontend:** React (planned under `frontend/`)
 - **Repository:** GitHub
 
@@ -14,14 +14,11 @@ Built step by step, API first.
 
 ## Backend (local)
 
+PostgreSQL runs in Docker Compose; the API runs on the host by default.
+
 ```bash
-cd backend
-python3 -m venv ../.venv   # or reuse repo-root .venv
-source ../.venv/bin/activate
-pip install -r requirements/local.txt
-cp .env.example .env       # set DJANGO_SECRET_KEY at minimum
-python manage.py migrate
-python manage.py runserver
+make setup          # venv, deps, .env, pre-commit hooks, start Postgres, migrate
+make run            # Django development server
 ```
 
 - Liveness: `GET /health/`
@@ -29,12 +26,17 @@ python manage.py runserver
 
 Settings modules: `config.settings.local` (default for `manage.py`) and `config.settings.production` (WSGI/Gunicorn/Docker).
 
+Database connection uses discrete env vars: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (see `backend/.env.example`).
+
+### Quality hooks
+
+```bash
+make pre-commit-install   # once per clone
+make pre-commit-run       # run all hooks
+```
+
 ## Backend (production-style)
 
 ```bash
-cd backend
-# set required env vars (see .env.example)
-gunicorn --config gunicorn.conf.py config.wsgi:application
-# or
-docker compose up --build
+make docker-up   # API + PostgreSQL via Compose / Gunicorn
 ```

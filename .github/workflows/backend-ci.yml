@@ -5,10 +5,14 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "Makefile"
+      - ".pre-commit-config.yaml"
       - ".github/workflows/backend-ci.yml"
   pull_request:
     paths:
       - "backend/**"
+      - "Makefile"
+      - ".pre-commit-config.yaml"
       - ".github/workflows/backend-ci.yml"
 
 defaults:
@@ -19,11 +23,31 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: expense_tracker
+          POSTGRES_USER: expense_tracker
+          POSTGRES_PASSWORD: expense_tracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U expense_tracker -d expense_tracker"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
       DJANGO_SETTINGS_MODULE: config.settings.local
       DJANGO_SECRET_KEY: ci-test-secret-key-not-for-production-use-only-in-github-actions
       DJANGO_DEBUG: "true"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: expense_tracker
+      POSTGRES_USER: expense_tracker
+      POSTGRES_PASSWORD: expense_tracker
 
     steps:
       - uses: actions/checkout@v4
@@ -43,10 +67,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/local.txt
 
+      - name: Run pre-commit
+        working-directory: .
+        run: pre-commit run --all-files
+
       - name: Django system check
         run: python manage.py check --deploy
         env:
-          # --deploy uses production-oriented checks; use production module
           DJANGO_SETTINGS_MODULE: config.settings.production
           DJANGO_SECRET_KEY: ci-production-check-secret-key-long-enough-for-django-w009
           DJANGO_DEBUG: "false"

@@ -79,15 +79,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+
+def _require_env(key: str) -> str:
+    value = env(key)
+    if not value:
+        raise ValueError(f"{key} environment variable is required")
+    return value
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / env("DJANGO_SQLITE_PATH", default="db.sqlite3"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": _require_env("POSTGRES_DB"),
+        "USER": _require_env("POSTGRES_USER"),
+        "PASSWORD": _require_env("POSTGRES_PASSWORD"),
+        "HOST": env("POSTGRES_HOST", default="localhost"),
+        "PORT": env("POSTGRES_PORT", default="5432"),
+        "CONN_MAX_AGE": int(env("POSTGRES_CONN_MAX_AGE", default="60") or "60"),
+        "OPTIONS": {
+            "connect_timeout": int(
+                env("POSTGRES_CONNECT_TIMEOUT", default="10") or "10"
+            ),
+        },
     }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -109,7 +129,6 @@ STORAGES = {
     },
 }
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
