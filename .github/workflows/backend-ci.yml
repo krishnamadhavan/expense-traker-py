@@ -84,13 +84,5 @@ jobs:
       - name: Run migrations
         run: python manage.py migrate --noinput
 
-      - name: Smoke-test health endpoints
-        run: |
-          python manage.py shell -c "
-          from django.test import Client
-          c = Client()
-          for path in ['/health/', '/ready/']:
-              r = c.get(path)
-              assert r.status_code == 200, (path, r.status_code, r.content)
-              print(path, r.status_code, r.json())
-          "
+      - name: Run unit tests
+        run: python manage.py test core.tests --verbosity=1
