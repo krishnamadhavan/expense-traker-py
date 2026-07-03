@@ -82,15 +82,6 @@ Settings modules: `config.settings.local` (default for `manage.py`) and `config.
 
 Database connection uses discrete env vars: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (see `backend/.env.example`).
 
-If you previously applied the email-only custom user migrations, reset the local DB volume before migrate:
-
-```bash
-make docker-down
-docker volume rm backend_postgres_data   # see `docker volume ls` if the name differs
-make db-up
-make migrate
-```
-
 ### Quality hooks
 
 ```bash

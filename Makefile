@@ -82,7 +82,7 @@ docker-build: ## Build backend Docker image
 	$(COMPOSE) build
 
 docker-up: ## Start API + PostgreSQL via Docker Compose
-	$(COMPOSE) up --build
+	$(COMPOSE) up -d --build
 
 docker-down: ## Stop all backend Compose services
 	$(COMPOSE) down
