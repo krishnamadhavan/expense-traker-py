@@ -1,9 +1,10 @@
 """Shared settings for all environments."""
 
+import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
-import os
 
 # backend/ — parent of config/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -45,8 +46,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "accounts",
     "core",
 ]
+
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -137,6 +142,28 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": [
         "rest_framework.parsers.JSONParser",
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+# Access/refresh lifetimes; no token blacklist.
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=int(env("JWT_ACCESS_MINUTES", default="15") or "15")
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=int(env("JWT_REFRESH_DAYS", default="7") or "7")
+    ),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 # CORS — origins from env (comma-separated). Empty = deny all browser origins.

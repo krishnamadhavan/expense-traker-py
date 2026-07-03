@@ -85,4 +85,4 @@ jobs:
         run: python manage.py migrate --noinput
 
       - name: Run unit tests
-        run: python manage.py test core.tests --verbosity=1
+        run: python manage.py test --verbosity=1
