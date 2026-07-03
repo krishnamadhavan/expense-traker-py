@@ -39,6 +39,14 @@ Login accepts **username or email** in the `username` field (SimpleJWT shape):
 {"username": "alice@example.com", "password": "..."}
 ```
 
+### API documentation (Swagger / OpenAPI)
+
+Interactive docs (public; use **Authorize** in Swagger UI with a Bearer access token for protected routes):
+
+- Swagger UI: http://127.0.0.1:8000/api/docs/
+- ReDoc: http://127.0.0.1:8000/api/redoc/
+- OpenAPI schema: http://127.0.0.1:8000/api/schema/
+
 ### Protected endpoints
 
 All other API routes require:

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
     "accounts",
     "core",
 ]
@@ -145,6 +146,25 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Expense Tracker API",
+    "DESCRIPTION": (
+        "API-first expense tracker. "
+        "Authenticate with JWT: obtain tokens at `/api/auth/token/` "
+        "(send username or email in the `username` field), then use "
+        "`Authorization: Bearer <access>` on protected routes. "
+        "No public registration — create users via Django management commands."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "TAGS": [
+        {"name": "health", "description": "Liveness and readiness probes"},
+        {"name": "auth", "description": "JWT authentication and current user"},
     ],
 }
 
