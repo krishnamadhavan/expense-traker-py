@@ -82,7 +82,7 @@ docker-build: ## Build backend Docker image
 	$(COMPOSE) build
 
 docker-up: ## Start API + PostgreSQL via Docker Compose
-	$(COMPOSE) up --build
+	$(COMPOSE) up -d --build
 
 docker-down: ## Stop all backend Compose services
 	$(COMPOSE) down
@@ -98,4 +98,4 @@ pre-commit-run: ## Run all pre-commit hooks on the repo
 	$(PRE_COMMIT) run --all-files
 
 test: ## Run the Django unit test suite
-	$(MANAGE) test core.tests --verbosity=1
+	cd $(BACKEND_DIR) && $(PYTHON) manage.py test --verbosity=1
