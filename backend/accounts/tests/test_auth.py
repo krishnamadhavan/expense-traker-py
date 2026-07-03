@@ -1,21 +1,34 @@
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import User
+User = get_user_model()
 
 
 class AuthEndpointTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            email="user@example.com",
+            username="alice",
+            email="alice@example.com",
             password="secure-pass-123",
         )
 
-    def test_token_obtain_returns_access_and_refresh(self):
+    def test_token_obtain_with_username(self):
         response = self.client.post(
             reverse("token_obtain_pair"),
-            {"email": "user@example.com", "password": "secure-pass-123"},
+            {"username": "alice", "password": "secure-pass-123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.json())
+        self.assertIn("refresh", response.json())
+
+    def test_token_obtain_with_email(self):
+        response = self.client.post(
+            reverse("token_obtain_pair"),
+            {"username": "alice@example.com", "password": "secure-pass-123"},
             format="json",
         )
 
@@ -26,7 +39,7 @@ class AuthEndpointTests(APITestCase):
     def test_token_obtain_rejects_bad_credentials(self):
         response = self.client.post(
             reverse("token_obtain_pair"),
-            {"email": "user@example.com", "password": "wrong"},
+            {"username": "alice", "password": "wrong"},
             format="json",
         )
 
@@ -35,7 +48,7 @@ class AuthEndpointTests(APITestCase):
     def test_token_refresh_returns_new_access(self):
         obtain = self.client.post(
             reverse("token_obtain_pair"),
-            {"email": "user@example.com", "password": "secure-pass-123"},
+            {"username": "alice", "password": "secure-pass-123"},
             format="json",
         )
         refresh = obtain.json()["refresh"]
@@ -57,7 +70,7 @@ class AuthEndpointTests(APITestCase):
     def test_me_returns_user_with_valid_token(self):
         obtain = self.client.post(
             reverse("token_obtain_pair"),
-            {"email": "user@example.com", "password": "secure-pass-123"},
+            {"username": "alice@example.com", "password": "secure-pass-123"},
             format="json",
         )
         access = obtain.json()["access"]
@@ -68,5 +81,9 @@ class AuthEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json(),
-            {"id": self.user.pk, "email": "user@example.com"},
+            {
+                "id": self.user.pk,
+                "username": "alice",
+                "email": "alice@example.com",
+            },
         )

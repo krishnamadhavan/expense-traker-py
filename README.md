@@ -29,8 +29,15 @@ make run
 
 - Liveness: `GET /health/`
 - Readiness: `GET /ready/`
-- Obtain tokens: `POST /api/auth/token/` body `{"email": "...", "password": "..."}`
+- Obtain tokens: `POST /api/auth/token/`
 - Refresh access: `POST /api/auth/token/refresh/` body `{"refresh": "..."}`
+
+Login accepts **username or email** in the `username` field (SimpleJWT shape):
+
+```json
+{"username": "alice", "password": "..."}
+{"username": "alice@example.com", "password": "..."}
+```
 
 ### Protected endpoints
 
@@ -40,20 +47,25 @@ All other API routes require:
 Authorization: Bearer <access_token>
 ```
 
-Example: `GET /api/auth/me/` returns the current user.
+Example: `GET /api/auth/me/` returns the current user (`id`, `username`, `email`).
 
 ### Create a user (no public registration)
 
-There is no sign-up API. Create accounts with Django management commands after migrate:
+Uses Django’s default user model (`username` + `email` + password). Create accounts with management commands after migrate:
 
 ```bash
-# Interactive (prompts for email and password)
+# Interactive (username, email optional, password)
 cd backend && python manage.py createsuperuser
 
 # Or non-interactive from the project root (venv activated)
 python backend/manage.py shell <<'PY'
-from accounts.models import User
-User.objects.create_user(email="you@example.com", password="choose-a-strong-password")
+from django.contrib.auth import get_user_model
+User = get_user_model()
+User.objects.create_user(
+    username="alice",
+    email="alice@example.com",
+    password="choose-a-strong-password",
+)
 PY
 ```
 
@@ -62,18 +74,19 @@ Then obtain tokens:
 ```bash
 curl -s -X POST http://127.0.0.1:8000/api/auth/token/ \
   -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com","password":"choose-a-strong-password"}'
+  -d '{"username":"alice","password":"choose-a-strong-password"}'
+# or: "username":"alice@example.com"
 ```
 
 Settings modules: `config.settings.local` (default for `manage.py`) and `config.settings.production` (WSGI/Gunicorn/Docker).
 
 Database connection uses discrete env vars: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (see `backend/.env.example`).
 
-**Note:** Switching to the email-based custom user model requires a database that has not already applied the default `auth.User` schema. For local Compose Postgres, reset if migrate fails after pull:
+If you previously applied the email-only custom user migrations, reset the local DB volume before migrate:
 
 ```bash
 make docker-down
-docker volume rm backend_postgres_data   # name may vary; see `docker volume ls`
+docker volume rm backend_postgres_data   # see `docker volume ls` if the name differs
 make db-up
 make migrate
 ```
