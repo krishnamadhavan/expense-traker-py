@@ -17,8 +17,12 @@ Built step by step, API first.
 PostgreSQL runs in Docker Compose; the API runs on the host by default.
 
 ```bash
-make setup          # venv, deps, .env, pre-commit hooks, start Postgres, migrate
-make run            # Django development server
+make install
+make env
+make pre-commit-install
+make db-up
+make migrate
+make run
 ```
 
 - Liveness: `GET /health/`
